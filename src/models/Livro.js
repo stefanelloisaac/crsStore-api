@@ -19,10 +19,6 @@ const Livro = sequelize.define(
         sinopse: {
             type: DataTypes.STRING(500),
         },
-        emprestado: {
-            type: DataTypes.BOOLEAN,
-            defaultValue: false
-        }
     },
     
     {
@@ -34,6 +30,7 @@ const Livro = sequelize.define(
     
     
 )
+
 Livro.belongsTo(Categoria, {
     as: 'categoria',
     foreignKey: {

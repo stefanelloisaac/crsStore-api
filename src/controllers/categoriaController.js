@@ -97,7 +97,7 @@ const update = async (id, dados, res) => {
   
   Object.keys(dados).forEach(dado => categoria[dado] = dados[dado])
   
-  categoria.save();
+  await categoria.save();
   return res.status(200).send({
     message: `Categoria ${id} atualizada com sucesso`,
     data: categoria
@@ -125,7 +125,7 @@ const deletar = async (req, res) => {
       return res.status(400).send({ message: `Não foi encontrada categoria com o id ${id}` })
     }
 
-    categoria.destroy();
+    await categoria.destroy();
     return res.status(200).send({
       message: `Categoria id ${id} deletada com sucesso`
     })
