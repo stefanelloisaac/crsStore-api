@@ -12,12 +12,12 @@ const Autor = sequelize.define(
 		},
         nome:{
             type: DataTypes.STRING(200),
-            allowNull: false
+            allowNull: false,
+            unique: true
         },
         email:{
             type: DataTypes.STRING(200),
             allowNull: false,
-            unique: true
         }
     },
     
