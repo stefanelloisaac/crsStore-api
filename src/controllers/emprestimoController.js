@@ -5,6 +5,7 @@ import Emprestimo from "../models/Emprestimo";
 import EmprestimoLivro from "../models/EmprestimoLivro";
 import Livro from "../models/Livro";
 import { sequelize } from "../config/config";
+import { Op } from "sequelize";
 
 const getAll = async (req, res) =>{
   try {
@@ -215,10 +216,32 @@ const verificarEmprestimo = async (req, res) => {
   
   
   try {
+   
+    //coisa maluquinha do gabriel
+
+  //   let livros = await Livro.findOne({
+  //     where:{
+  //       id: idLivro
+  //     }
+  //   })
+    
+  //   let forget = await livros.getEmprestimos({
+  //     where:{
+  //       devolucao:{
+  //         [Op.is]: null
+  //       }
+  //     }
+  //   })
+  //   return res.status(200).send({
+  //     forget
+  //   })
+
+
     let livroEmprestimo = await sequelize.query(`
       select
         *
       from emprestimo_livros as el
+      join livros as l on (el.id_livro = l.id)
       inner join emprestimos as e on (e.id = el.id_emprestimo)
       where e.devolucao is null and el.id_livro = ${idLivro}
     `)
@@ -226,7 +249,7 @@ const verificarEmprestimo = async (req, res) => {
     let emprestimoDoLivro = livroEmprestimo[1].rows[0] 
 
     
-    if(!emprestimoDoLivro){
+    if(emprestimoDoLivro.length){
       return res.status(200).send({
         message: `O livro de código ${idLivro} esta disponivel para emprestimo`
       })
