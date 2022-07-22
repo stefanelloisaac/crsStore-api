@@ -250,14 +250,16 @@ const verificarEmprestimo = async (req, res) => {
 
     
     if(emprestimoDoLivro.length){
-      return res.status(200).send({
+      return res.status(200).send([{
+        emprestado: false,
         message: `O livro de código ${idLivro} esta disponivel para emprestimo`
-      })
+      }])
     }else{
-      return res.status(200).send({
+      return res.status(200).send([{
+        emprestado: true,
         message: `Livro indisponivel para emprestimo.`,
         Emprestimo: emprestimoDoLivro
-      })
+      }])
     }
     
   } catch (error) {
