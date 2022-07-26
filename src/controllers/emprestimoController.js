@@ -197,9 +197,10 @@ const deletar = async (req, res) => {
 
 const verificarEmprestimo = async (req, res) => {
   let {idLivro} = req.body
+  let existe = null
 
   try {
-    let existe = await Livro.findOne({
+    existe = await Livro.findOne({
       where: {
         id: idLivro
       }
@@ -246,21 +247,25 @@ const verificarEmprestimo = async (req, res) => {
       where e.devolucao is null and el.id_livro = ${idLivro}
     `)
 
-    let emprestimoDoLivro = livroEmprestimo[1].rows[0] 
+    console.log(existe.dataValues);
 
-    
-    if(emprestimoDoLivro.length){
+    if(!livroEmprestimo[1].rows.length){
+      console.log(livroEmprestimo[1].rows[0]);
       return res.status(200).send([{
         emprestado: false,
+        titulo: existe.dataValues.titulo,
         message: `O livro de código ${idLivro} esta disponivel para emprestimo`
       }])
-    }else{
-      return res.status(200).send([{
-        emprestado: true,
-        message: `Livro indisponivel para emprestimo.`,
-        Emprestimo: emprestimoDoLivro
-      }])
     }
+
+    console.log("aaa");
+    console.log(livroEmprestimo[1].rows[0]);
+    return res.status(200).send([{
+      emprestado: true,
+      message: `Livro indisponivel para emprestimo.`,
+      Emprestimo: livroEmprestimo[1].rows[0] 
+    }])
+    
     
   } catch (error) {
     return res.status(500).send({
