@@ -118,7 +118,8 @@ const create = async (dados,res) =>{
     if(livroEmprestado[1].rowCount){
       await emprestimo.destroy()
       livroEmprestado = livroEmprestado[0][0]? livroEmprestado[0][0].id : ''
-      return res.status(400).send({
+      return res.status(200).send({
+        type: 'error',
         message: `O livro id ${livros[index]} já está emprestado no empréstimo ${livroEmprestado}. O empréstimo não foi salvo!!`
       })
     }
@@ -128,7 +129,10 @@ const create = async (dados,res) =>{
       idLivro: livros[index]
     });
   }
-  return res.status (201).send(emprestimo)
+  return res.status (201).send({
+    type: 'sucess',
+    dados: emprestimo
+  })
 }
 
 
@@ -159,6 +163,7 @@ const deletar = async (req, res) => {
   try {
     let { id } = req.body;
     //garante que o id só vai ter NUMEROS;
+    id = id ? id.toString(): null;
     id = id ? id.replace(/\D/g, '') : null;
     if (!id) {
       return res.status(400).send({
