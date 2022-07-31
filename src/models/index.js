@@ -15,3 +15,5 @@ import EmprestimoLivro from "./EmprestimoLivro";
   // await Emprestimo.sync({force: true})
   // await EmprestimoLivro.sync({force: true})
 })()
+
+//teste
