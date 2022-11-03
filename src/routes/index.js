@@ -1,8 +1,7 @@
-import autorRoute from './autorRoute';
+import baseRoute from './baseRoute'
 
-
-function Routes(app){
-    autorRoute(app);
+function Routes (app) {
+    baseRoute(app);
 }
 
 export default Routes
