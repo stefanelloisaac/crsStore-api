@@ -1,8 +1,5 @@
-
-import Autor from "./Autor";
+import BaseModel from './baseModel'
 
 (async () => {
-  // await Autor.sync({ force: true });
+  await BaseModel.sync({ force: true });
 })()
-
-//teste
