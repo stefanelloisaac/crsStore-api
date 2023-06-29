@@ -37,5 +37,5 @@ app.use((req, res) => {
 });
 
 app.listen(3333, () => {
-  console.log(`ABEX API running in 3333`);
+  console.log(`CRS Store running in 3333`);
 });
