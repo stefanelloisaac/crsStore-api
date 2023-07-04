@@ -64,7 +64,7 @@ const create = async (dados, res) => {
     totalDiscount,
     idUserCostumer,
     idUserDeliver,
-    idAddress,
+    idAdress,
     idPayment,
     idCupom,
   } = dados;
@@ -75,7 +75,7 @@ const create = async (dados, res) => {
     totalDiscount,
     idUserCostumer,
     idUserDeliver,
-    idAddress,
+    idAdress,
     idPayment,
     idCupom,
   });

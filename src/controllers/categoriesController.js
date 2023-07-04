@@ -1,6 +1,40 @@
 import Category from "../models/Category";
+import Product from "../models/Product";
 
-const get = async (req, res) => {
+const getAll = async (req, res) => {
+  try {
+    const response = await Category.findAll({
+      order: [["id", "asc"]],
+    });
+    let responseArray = [];
+    for (let category of response) {
+      let products = await Product.findAll({
+        where: {
+          idCategory: category.id,
+        },
+      });
+      category = category.toJSON();
+      category.products = products;
+      if (products.length) {
+        responseArray.push(category);
+      }
+    }
+    console.log(responseArray);
+    return res.status(200).send({
+      type: "success", // success, error, warning, info
+      message: "Registros recuperados com sucesso", // mensagem para o front exibir
+      data: responseArray, // json com informações de resposta
+    });
+  } catch (error) {
+    return res.status(200).send({
+      type: "error",
+      message: "Ops! Ocorreu um erro!",
+      data: error.message,
+    });
+  }
+};
+
+const getAllCategories = async (req, res) => {
   try {
     let id = req.params.id ? req.params.id.toString().replace(/\D/g, "") : null;
 
@@ -58,9 +92,7 @@ const persist = async (req, res) => {
 };
 
 const create = async (dados, res) => {
-  let {
-    name,
-  } = dados;
+  let { name } = dados;
 
   let response = await Category.create({
     name,
@@ -131,7 +163,8 @@ const destroy = async (req, res) => {
 };
 
 export default {
-  get,
+  getAllCategories,
   persist,
   destroy,
+  getAll
 };

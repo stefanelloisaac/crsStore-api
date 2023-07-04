@@ -10,7 +10,7 @@ const Address = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
-    zip_code: {
+    zipCode: {
       field: "zip_code",
       type: DataTypes.STRING(255),
       allowNull: false,

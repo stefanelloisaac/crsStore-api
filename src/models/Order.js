@@ -62,8 +62,8 @@ Order.belongsTo(Address, {
   onDelete: "NO ACTION",
   onUpdate: "NO ACTION",
   foreignKey: {
-    name: "idAddress",
-    field: "id_address",
+    name: "idAdress",
+    field: "id_adress",
     allowNull: true,
   },
 });
