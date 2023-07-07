@@ -1,4 +1,30 @@
 import Address from "../models/Address";
+import getUserByToken from "../utils/getUserByToken";
+import  Jwt  from "jsonwebtoken";
+
+const getAll = async (req, res) => {
+  try {
+    let user = await getUserByToken(req.headers.authorization)
+
+    const response = await Address.findAll({
+      where: {
+        idUser: user.id
+      }
+    })
+
+    return res.status(200).send({
+      type: 'success',
+      message: 'Registros recuperados com sucesso.',
+      data: response
+    })
+  } catch (error) {
+    return res.status(200).send({
+      type: 'error',
+      message: 'Ops! Ocorreu um erro!',
+      data: error.message
+    })
+  }
+}
 
 const get = async (req, res) => {
   try {
@@ -42,9 +68,9 @@ const get = async (req, res) => {
 const persist = async (req, res) => {
   try {
     let id = req.params.id ? req.params.id.toString().replace(/\D/g, "") : null;
-
+    let usuario = await getUserByToken(req.headers.authorization)
     if (!id) {
-      return await create(req.body, res);
+      return await create(usuario.id, req.body, res);
     }
 
     return await update(id, req.body, res);
@@ -52,12 +78,12 @@ const persist = async (req, res) => {
     return res.status(200).send({
       type: "error",
       message: `Ops! Ocorreu um erro`,
-      error: error,
+      error: error.message,
     });
   }
 };
 
-const create = async (dados, res) => {
+const create = async (token, dados, res) => {
   let {
     zipCode,
     state,
@@ -65,7 +91,6 @@ const create = async (dados, res) => {
     street,
     district,
     numberForget,
-    idUser,
   } = dados;
 
   let response = await Address.create({
@@ -75,7 +100,7 @@ const create = async (dados, res) => {
     street,
     district,
     numberForget,
-    idUser,
+    idUser: token,
   });
 
   return res.status(200).send({
@@ -86,7 +111,8 @@ const create = async (dados, res) => {
 };
 
 const update = async (id, dados, res) => {
-  let response = await Address.findOne({ where: { id } });
+  let user = {"id": token}
+  let response = await Address.findOne({ where: { id, idUser: user.id } });
 
   if (!response) {
     return res.status(200).send({
@@ -146,4 +172,5 @@ export default {
   get,
   persist,
   destroy,
+  getAll
 };

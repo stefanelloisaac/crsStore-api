@@ -5,5 +5,6 @@ export default (app) => {
 	app.patch('/address/:id', controller.persist)
 	app.delete('/address/destroy/:id', controller.destroy)
 	app.get('/address/', controller.get)
+  app.get('/address/getAll/', controller.getAll)
 	app.get('/address/:id', controller.get)
 }

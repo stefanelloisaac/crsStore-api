@@ -1,4 +1,7 @@
 import User from "../models/User";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import getUserByToken from "../utils/getUserByToken";
 
 const get = async (req, res) => {
   try {
@@ -39,6 +42,22 @@ const get = async (req, res) => {
   }
 };
 
+const getByToken = async (req, res) => {
+  try {
+    let usuarios = await getUserByToken.getUserByToken(
+      req.headers.authorization
+    );
+    let idUser = usuarios.id;
+    return await getById(idUser, req, res);
+  } catch (err) {
+    return res.status(200).send({
+      type: "error",
+      message: "Ops! Ocorreu um erro!",
+      data: err.message,
+    });
+  }
+};
+
 const persist = async (req, res) => {
   try {
     let id = req.params.id ? req.params.id.toString().replace(/\D/g, "") : null;
@@ -57,38 +76,91 @@ const persist = async (req, res) => {
   }
 };
 
-const create = async (dados, res) => {
-  let {
-    username,
-    cpf,
-    name,
-    phone,
-    passwordHash,
-    token,
-    role,
-    cart,
-    email,
-    recuperation,
-  } = dados;
+const create = async (data, res) => {
+  try {
+    let { username, name, phone, password, role, cpf, email } = data;
 
-  let response = await User.create({
-    username,
-    cpf,
-    name,
-    phone,
-    passwordHash,
-    token,
-    role,
-    cart,
-    email,
-    recuperation,
-  });
+    let userExists = await User.findOne({
+      where: {
+        username,
+      },
+    });
 
-  return res.status(200).send({
-    type: "success",
-    message: `Cadastro realizado com sucesso`,
-    data: response,
-  });
+    if (userExists) {
+      return res.status(200).send({
+        type: "error",
+        message: "Já existe um usuário cadastrado com esse username!",
+      });
+    }
+
+    let passwordHash = null;
+    if (password) {
+      passwordHash = await bcrypt.hash(password, 10);
+    }
+
+    let response = await User.create({
+      username,
+      name,
+      phone,
+      passwordHash,
+      role,
+      cpf,
+      email,
+    });
+    
+    return res.status(200).send({
+      type: "success",
+      message: "Usuário cadastrastado com sucesso!",
+      data: response,
+    });
+  } catch (error) {
+    return res.status(200).send({
+      type: "error",
+      message: "Ops! Ocorreu um erro!",
+      data: error.message,
+    });
+  }
+};
+
+const login = async (req, res) => {
+  try {
+    let { username, password } = req.body;
+
+    let user = await User.findOne({
+      where: {
+        username,
+      },
+    });
+
+    if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+      return res.status(200).send({
+        type: "error",
+        message: "Usuário ou senha incorretos!",
+      });
+    }
+
+    let token = jwt.sign(
+      { userId: user.id, username: user.username, role: user.role }, //payload - dados utilizados na criacao do token
+      process.env.TOKEN_KEY, //chave PRIVADA da aplicação
+      { expiresIn: "1h" } //options ... em quanto tempo ele expira...
+    );
+
+    user.token = token;
+    await user.save();
+
+    return res.status(200).send({
+      type: "success",
+      message: "Bem-vindo! Login realizado com sucesso!",
+      data: user,
+      token,
+    });
+  } catch (error) {
+    return res.status(200).send({
+      type: "error",
+      message: "Ops! Ocorreu um erro!",
+      data: error,
+    });
+  }
 };
 
 const update = async (id, dados, res) => {
@@ -152,4 +224,6 @@ export default {
   get,
   persist,
   destroy,
+  getByToken,
+  login,
 };

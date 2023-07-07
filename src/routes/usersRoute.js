@@ -6,4 +6,6 @@ export default (app) => {
 	app.delete('/users/destroy/:id', controller.destroy)
 	app.get('/users/', controller.get)
 	app.get('/users/:id', controller.get)
+  app.get('/users/by-token', controller.getByToken)
+  app.post('/users/login', controller.login)
 }
