@@ -1,4 +1,5 @@
 import controller from '../controllers/addressController'
+import Authenticate from '../utils/Authenticate'
 
 export default (app) => {
 	app.post('/address/', controller.persist)

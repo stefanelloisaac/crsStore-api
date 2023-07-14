@@ -1,9 +1,10 @@
 import controller from '../controllers/cupomsController'
+import Authenticate from '../utils/Authenticate'
 
 export default (app) => {
-	app.post('/cupoms/', controller.persist)
-	app.patch('/cupoms/:id', controller.persist)
-	app.delete('/cupoms/destroy/:id', controller.destroy)
-	app.get('/cupoms/', controller.get)
-	app.get('/cupoms/:id', controller.get)
+	app.post('/cupoms/', Authenticate, controller.persist)
+	app.patch('/cupoms/:id', Authenticate, controller.persist)
+	app.delete('/cupoms/destroy/:id', Authenticate, controller.destroy)
+	app.get('/cupoms/', Authenticate, controller.get)
+	app.get('/cupoms/:id', Authenticate, controller.get)
 }

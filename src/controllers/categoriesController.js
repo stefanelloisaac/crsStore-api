@@ -19,7 +19,6 @@ const getAll = async (req, res) => {
         responseArray.push(category);
       }
     }
-    console.log(responseArray);
     return res.status(200).send({
       type: "success", // success, error, warning, info
       message: "Registros recuperados com sucesso", // mensagem para o front exibir

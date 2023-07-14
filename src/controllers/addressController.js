@@ -111,8 +111,8 @@ const create = async (token, dados, res) => {
 };
 
 const update = async (id, dados, res) => {
-  let user = {"id": token}
-  let response = await Address.findOne({ where: { id, idUser: user.id } });
+  
+  let response = await Address.findOne({ where: { id } });
 
   if (!response) {
     return res.status(200).send({

@@ -18,7 +18,7 @@ const get = async (req, res) => {
       });
     }
 
-    let response = await User.findOne({ where: { id } });
+    let response = await getById(id);
 
     if (!response) {
       return res.status(200).send({
@@ -42,36 +42,46 @@ const get = async (req, res) => {
   }
 };
 
+const getById = async (id) => {
+  let user = User.findOne({
+    where: {
+      id,
+    },
+  });
+  return user;
+};
+
 const getByToken = async (req, res) => {
   try {
-    let usuarios = await getUserByToken.getUserByToken(
-      req.headers.authorization
-    );
+    let usuarios = await getUserByToken(req.headers.authorization);
     let idUser = usuarios.id;
-    return await getById(idUser, req, res);
-  } catch (err) {
+    const usuario = await getById(idUser);
+    return res.status(200).send({
+      message: "Usuário Carregado com sucesso!",
+      data: usuario,
+    });
+  } catch (error) {
     return res.status(200).send({
       type: "error",
       message: "Ops! Ocorreu um erro!",
-      data: err.message,
+      data: error.message,
     });
   }
 };
 
 const persist = async (req, res) => {
   try {
-    let id = req.params.id ? req.params.id.toString().replace(/\D/g, "") : null;
-
-    if (!id) {
+    let user = await getUserByToken(req.headers.authorization);
+    if (!user) {
       return await create(req.body, res);
     }
 
-    return await update(id, req.body, res);
+    return await update(user.id, req.body, res);
   } catch (error) {
     return res.status(200).send({
       type: "error",
       message: `Ops! Ocorreu um erro`,
-      error: error,
+      error: error.message,
     });
   }
 };
@@ -107,7 +117,7 @@ const create = async (data, res) => {
       cpf,
       email,
     });
-    
+
     return res.status(200).send({
       type: "success",
       message: "Usuário cadastrastado com sucesso!",
@@ -220,10 +230,142 @@ const destroy = async (req, res) => {
   }
 };
 
+const resetCart = async (req, res) => {
+  try {
+    let usuarios = await getUserByToken.getUserByToken(
+      req.headers.authorization
+    );
+    let idUser = usuarios.id;
+    let currentCart = await User.findOne({
+      where: {
+        id: idUser,
+      },
+    });
+    currentCart.cart = null;
+    await currentCart.save();
+    return res.status(200).send({
+      type: "success",
+    });
+  } catch (error) {
+    return res.status(200).send({
+      type: "error",
+      message: "Ops! Ocorreu um erro!",
+      data: error.message,
+    });
+  }
+};
+
+const addtoCart = async (req, res) => {
+  try {
+    let { id, idCategory, name, description, image, price } = req.body;
+    let usuarios = await getUserByToken(req.headers.authorization);
+    let idUser = usuarios.id;
+    let carrinho = await User.findOne({
+      where: {
+        id: idUser,
+      },
+    });
+    let usuarioJSON = carrinho.toJSON();
+    let usuarioCart = usuarioJSON.cart;
+    if (!carrinho.cart) {
+      carrinho.cart = [
+        { produto: id, idCategory, name, description, image, price },
+      ];
+      await carrinho.save();
+      return res.status(200).send({
+        type: "success",
+        message: "Produto adicionado ao carrinho!",
+        data: carrinho,
+      });
+    } else {
+      for (let produto of usuarioCart) {
+        if (produto.id == id) {
+          carrinho.cart = usuarioCart;
+          await carrinho.save();
+          return res.status(200).send({
+            type: "success",
+            message: "Produto adicionado ao carrinho!",
+            data: carrinho,
+          });
+        }
+      }
+      usuarioCart.push({
+        produto: id,
+        idCategory,
+        name,
+        description,
+        image,
+        price,
+      });
+      carrinho.cart = usuarioCart;
+      console.log(carrinho.cart);
+      await carrinho.save();
+      return res.status(200).send({
+        type: "success",
+        message: "Produto adicionado ao carrinho!",
+        data: carrinho,
+      });
+    }
+  } catch (error) {
+    return res.status(200).send({
+      type: "error",
+      message: "Ops! Ocorreu um erro!",
+      data: error.message,
+    });
+  }
+};
+
+const removeItem = async (req, res) => {
+  try {
+    let { produto } = req.body;
+    let usuario = await getUserByToken(req.headers.authorization);
+    let idUser = usuario.id;
+    let currentCart = await User.findOne({
+      where: {
+        id: idUser,
+      },
+    });
+    let userJSON = currentCart.toJSON();
+    let userCart = userJSON.cart;
+    if (userCart.length >= 1) {
+      userCart.forEach(async (cartItem, i) => {
+        if (cartItem.produto == produto) {
+          userCart.splice(i, 1);
+          currentCart.cart = userCart;
+          await currentCart.save();
+        }
+      });
+      return res.status(200).send({
+        type: "success",
+        message: "Produto removido",
+        data: `Produto ${produto} removido`,
+      });
+    } else {
+      userCart = null;
+      currentCart.cart = userCart;
+      await currentCart.save();
+      return res.status(200).send({
+        type: "success",
+        message: "Produto removido",
+        data: `Produto ${produto} removido`,
+      });
+    }
+  } catch (error) {
+    return res.status(200).send({
+      type: "error",
+      message: "Ops! Ocorreu um erro!",
+      data: error.message,
+    });
+  }
+};
+
 export default {
   get,
   persist,
   destroy,
   getByToken,
   login,
+  resetCart,
+  addtoCart,
+  removeItem,
 };
